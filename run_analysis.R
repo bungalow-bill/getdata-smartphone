@@ -69,6 +69,6 @@ newnames<-gsub("BodyBody","Body",newnames)
 setnames(tidy.summary,newnames)
 
 # export a tidy dataset in CSV format
-write.table(tidy.summary,file=file.path(data.folder,"SmartphoneActivity_Averages.csv"),sep=",",row.names=FALSE)
+write.table(tidy.summary,file=file.path(data.folder,"SmartphoneActivity_Averages.txt"),sep=",",row.names=FALSE)
 
 setwd(oldwd)

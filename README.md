@@ -13,7 +13,7 @@ This R code takes the Human Activity Recognition Using Smartphones Dataset V1, f
 
 The original dataset contains 561 feature measurements taken from 30 different subjects while performing 6 different activities.  A subset of 66 columns are selected for the summary dataset, and the average values of these measurements is computed for each subject and activity.  The result is a table with 180 rows by 68 columns.  See the [Codebook](Codebook.md) for a description of the final table.
 
-The script is straight-forward and uses the data.table package to do all the summarization.  The code performs the 5 steps listed above, but some steps are 
+The script is fairly straight-forward and uses the data.table package to do all the summarization.  The code performs the 5 steps listed above, but some steps accomplished simultaneously.  
 
 1.  Merge the training and test sets   
 ```R
@@ -60,3 +60,31 @@ full.x<-rbind(train.x,test.x)
 # save the full dataset for possible future analysis
 save(full.x,file=file.path(data.folder,"SmartphoneActivity_fulldataset.RData"))
 ```
+
+2. Extract only the measurements on the mean and standard deviation for each measurement.   
+3. Uses descriptive activity names to name the activities in the data set
+4. Appropriately labels the data set with descriptive variable names. 
+5. Create a second, independent tidy data set with the average of each variable for each activity and each subject. 
+```R
+#  select the mean and std dev columns only
+selected.cols<-names(full.x)[full.x[,grep("\\.mean\\.\\.|\\.std\\.\\.",names(full.x))]]
+
+setkey(full.x,Activity)
+
+# calculate averages by activity and subject for each of the selected feature columns
+tidy.summary<-full.x[,lapply(.SD,mean),.SDcols=selected.cols,by=list(Activity,Subject)]
+
+# clean up the names
+newnames<-gsub("\\.+","-",names(tidy.summary))
+newnames<-gsub("-$","",newnames)
+newnames<-gsub("^t","avgTime",newnames)
+newnames<-gsub("^f","avgFreq",newnames)
+newnames<-gsub("BodyBody","Body",newnames)
+
+# assign the new names to the dataset
+setnames(tidy.summary,newnames)
+
+# export a tidy dataset in CSV format
+write.table(tidy.summary,file=file.path(data.folder,"SmartphoneActivity_Averages.txt"),sep=",",row.names=FALSE)
+```
+
